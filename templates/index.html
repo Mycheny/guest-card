@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <!--<meta charset="UTF-8">-->
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>接口文档</title>
+    <!--<script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>-->
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/my.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+        <h3 class="text-muted">Welcome to Xiaoi</h3>
+        </div>
+        <hr/>
+        <div>
+            你的IP地址是: <strong>{{user_ip}}</strong>
+            <div class="header">
+                <div class="text-muted"><a href="video.html">测试</a></div>
+                <h3 class="text-muted">接口文档</h3>
+            </div>
+            <hr/>
+            <pre>
+            API参考
+
+            说明
+                该接口主要能检测经base64编码后的图片，辨别图片中是否包含二维码或数博会嘉宾证。并返回解析后的二维码字符串或嘉宾证上的打印文字信息。
+            请求方式
+
+            1.	POST方式调用接口
+            2.	以JSON字符串的形式作为传输参数
+
+            返回方式
+            JSON格式
+
+            接口详情
+            1)	嘉宾证-二维码识别
+            a)	接口描述
+            该接口能通过前端上传的一张经base64编码后的图片，识别其中的二维码或数博会嘉宾证，若是二维码返回对应二维码解析后的字符串，若是嘉宾证能返回嘉宾证上的打印文字信息。
+            b)	请求说明
+            HTTP方法：POST
+            请求URL：http:// 172.16.205.48:8093/xiaoi/identify
+            body中存放请求参数，具体详情如下：
+            参数	是否必选	数据类型	说明
+            image	是	String	经base64编码后的RGB图片,建议图片宽高比例为20：13
+
+            c)	返回说明
+            返回JSON格式数据，具体详情如下
+            字段	类型	说明
+            result	Int	图片类型：
+            -1：不包含二维码或嘉宾证
+            0：二维码
+            1：嘉宾证
+            text	若是二维码:JSON数组
+
+            若是嘉宾证:百度返回的文字识别结果（请参考百度文字识别接口）
+
+            其他：String	详情见下面示例
+
+
+
+
+            返回示例
+            二维码返回示例：
+            {
+            'result': 0,
+            'text': ['二维码信息']
+            }
+
+                           嘉宾证返回示例：
+                                {
+            'result': 1,
+            'text': {
+            'log_id': 2555966137322849509,
+            'direction': 0,
+            'words_result_num': 1,
+            'words_result': [
+            {
+            'words': '韩梅梅',
+            'probability':
+             {
+            'variance': 0.022715, 'average': 0.806783,
+            'min': 0.616635
+            }
+            }
+            ],
+            'language': -1
+            }
+            }
+            （text部分含义请参考百度文字识别文档 http://cloud.baidu.com/doc/OCR/OCR-API.html#.AD.45.25.42.6F.4C.89.80.FE.B7.28.00.A2.07.E8.17）
+
+                            其他返回示例：
+                        {
+                        'result': -1,
+                        'text': 'No qr code or certificate'
+                        }
+
+
+            d)	错误格式信息
+            错误码	错误信息	说明
+            100	The data is invalid	参数格式有误或非JSON字符串
+            101	KeyError: The key is image instead of xx	参数键值有误，请检查是否为 image
+            102	The value is null or invalid	图片经base64编码后的字符串无效或为空，请检查。
+            103	Invalid qr code	图片中包含二维码，但无法解析。
+                            错误返回示例：
+                            {
+            'error_code': 100,
+            'error_msg': '错误信息'
+            }
+
+            Python3.6请求示例：
+            url = 'http://172.16.205.48:8093/xiaoi/identify'
+            image = '' # image为经base64编码后的图片字符串
+            data = json.dumps({"image": image })
+            result = requests.post(url, data=data)
+
+            或
+            url = 'http://172.16.205.48:8093/xiaoi/identify'
+            image = '' # image为经base64编码后的图片字符串
+            bodys = {"image": image}
+            post_data = urllib.parse.urlencode(bodys).encode(encoding='UTF8')
+            request = urllib.request.Request(url, post_data)
+            response = urllib.request.urlopen(request)
+            r = response.read().decode()
+            res = json.loads(r)
+
+            </pre>
+        </div>
+    </div>
+</body>
+</html>
